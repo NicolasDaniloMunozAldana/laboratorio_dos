@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6fb;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .navbar {
+            background: #fff;
+            color: #22223b;
+            padding: 1.2rem 2rem;
+            box-shadow: 0 2px 8px rgba(34,34,59,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .navbar h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #22223b;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #4a90e2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #fff;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            background: #f3722c;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #d84315;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .welcome-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 2rem;
+            box-shadow: 0 2px 16px rgba(34,34,59,0.07);
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .welcome-card h2 {
+            color: #22223b;
+            margin-bottom: 1rem;
+            font-size: 1.7rem;
+            font-weight: 700;
+        }
+
+        .welcome-card p {
+            color: #4a5568;
+            font-size: 1.05rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-top: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-administrator {
+            background: #f3722c;
+            color: #fff;
+        }
+
+        .role-user {
+            background: #4a90e2;
+            color: #fff;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 16px rgba(34,34,59,0.07);
+            border: 1px solid #e9ecef;
+            transition: box-shadow 0.2s, transform 0.2s;
+            position: relative;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 32px rgba(34,34,59,0.12);
+            transform: translateY(-4px);
+        }
+
+        .card h3 {
+            color: #22223b;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .card p {
+            color: #4a5568;
+            margin-bottom: 1.2rem;
+            line-height: 1.5;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+        }
+
+        .btn {
+            background: #4a90e2;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+            margin: 5px 0;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn-danger {
+            background: #f3722c;
+        }
+
+        .btn-danger:hover {
+            background: #d84315;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.2rem;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(34,34,59,0.04);
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .users-table th {
+            background: #f4f6fb;
+            font-weight: 700;
+            color: #22223b;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .users-table tbody tr:hover {
+            background: #f4f6fb;
+        }
+
+        .logs-container {
+            max-height: 350px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-top: 1.2rem;
+            box-shadow: inset 0 1px 4px rgba(34,34,59,0.03);
+        }
+
+        .log-entry {
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.92rem;
+        }
+
+        .log-level-INFO {
+            background: #e6fbe6;
+            border-left: 4px solid #219653;
+        }
+
+        .log-level-WARN {
+            background: #fff4e5;
+            border-left: 4px solid #fb8500;
+        }
+
+        .log-level-ERROR {
+            background: #ffe5e5;
+            border-left: 4px solid #d90429;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1.2rem;
+        }
+
+        .stat-card {
+            background: #fff;
+            color: #22223b;
+            padding: 1.2rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 4px 16px rgba(34,34,59,0.10);
+            transform: translateY(-2px);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+            color: #4a90e2;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(34,34,59,0.18);
+        }
+
+        .modal-content {
+            background: #fff;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 420px;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(34,34,59,0.10);
+        }
+
+        .close {
+            color: #4a5568;
+            float: right;
+            font-size: 1.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #d90429;
+        }
+
+        .modal h2 {
+            color: #22223b;
+            margin-bottom: 1.2rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #22223b;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #f7fafc;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+                padding: 1.2rem;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                margin: 20% auto;
+                padding: 1rem;
+                width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar h1 {
+                font-size: 1.2rem;
+            }
+            .users-table th,
+            .users-table td {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.8rem;
+            }
+            .btn {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>Inicio</h1>
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar"></div>
+            <div>
+                <div id="userName"></div>
+                <div style="font-size: 0.8rem; opacity: 0.8;" id="userRole"></div>
+            </div>
+            <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h2 id="welcomeMessage"></h2>
+            <p>Bienvenido al sistema de gestión de usuarios con autenticación JWT</p>
+            <div class="role-badge" id="roleBadge"></div>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="dashboard-grid">
+            <!-- Perfil de Usuario -->
+            <div class="card">
+                <h3><span class="card-icon">👤</span> Mi Perfil</h3>
+                <p>Gestiona tu información personal y configuración de cuenta.</p>
+                <button class="btn" onclick="openProfileModal()">Ver/Editar Perfil</button>
+            </div>
+
+            <!-- Solo para administradores -->
+            <div class="card" id="adminUsersCard" style="display: none;">
+                <h3><span class="card-icon">👥</span> Gestión de Usuarios</h3>
+                <p>Administra todos los usuarios del sistema.</p>
+                <button class="btn" onclick="loadUsers()">Ver Usuarios</button>
+            </div>
+
+            <div class="card" id="adminLogsCard" style="display: none;">
+                <h3><span class="card-icon">📋</span> Logs del Sistema</h3>
+                <p>Revisa la actividad y eventos del sistema.</p>
+                <button class="btn" onclick="loadLogs()">Ver Logs</button>
+            </div>
+
+            <div class="card" id="adminStatsCard" style="display: none;">
+                <h3><span class="card-icon">📊</span> Estadísticas</h3>
+                <p>Estadísticas y métricas del sistema.</p>
+                <button class="btn" onclick="loadStats()">Ver Estadísticas</button>
+            </div>
+        </div>
+
+        <!-- Contenedor para datos dinámicos -->
+        <div id="dynamicContent"></div>
+    </div>
+
+    <!-- Modal para editar perfil -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeProfileModal()">&times;</span>
+            <h2>Editar Perfil</h2>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label for="editUsername">Usuario:</label>
+                    <input type="text" id="editUsername" name="username">
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email:</label>
+                    <input type="email" id="editEmail" name="email">
+                </div>
+                <div class="form-group">
+                    <label for="editPassword">Nueva Contraseña (opcional):</label>
+                    <input type="password" id="editPassword" name="password" placeholder="Dejar vacío para no cambiar">
+                </div>
+                <button type="submit" class="btn">Guardar Cambios</button>
+                <button type="button" class="btn btn-danger" onclick="closeProfileModal()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let authToken = null;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            authToken = localStorage.getItem('token');
+            const userStr = localStorage.getItem('user');
+            
+            if (!authToken || !userStr) {
+                window.location.href = '/';
+                return;
+            }
+
+            currentUser = JSON.parse(userStr);
+            initializeDashboard();
+        });
+
+        function initializeDashboard() {
+            // Configurar información del usuario
+            document.getElementById('userName').textContent = currentUser.username;
+            document.getElementById('userRole').textContent = currentUser.role;
+            document.getElementById('userAvatar').textContent = currentUser.username[0].toUpperCase();
+            document.getElementById('welcomeMessage').textContent = `¡Hola, ${currentUser.username}!`;
+            
+            // Configurar badge de rol
+            const roleBadge = document.getElementById('roleBadge');
+            roleBadge.textContent = currentUser.role === 'administrator' ? 'Administrador' : 'Usuario';
+            roleBadge.className = `role-badge role-${currentUser.role}`;
+
+            // Mostrar cards de admin si es necesario
+            if (currentUser.role === 'administrator') {
+                document.getElementById('adminUsersCard').style.display = 'block';
+                document.getElementById('adminLogsCard').style.display = 'block';
+                document.getElementById('adminStatsCard').style.display = 'block';
+            }
+
+            // Cargar perfil inicial
+            loadProfile();
+        }
+
+        function showAlert(message, type = 'error') {
+            let icon = 'error';
+            if (type === 'success') icon = 'success';
+            else if (type === 'warning') icon = 'warning';
+            Swal.fire({
+                text: message,
+                icon: icon,
+                confirmButtonColor: icon === 'success' ? '#4a90e2' : (icon === 'warning' ? '#fb8500' : '#d90429'),
+                timer: 4000,
+                timerProgressBar: true,
+                showConfirmButton: true
+            });
+        }
+
+        async function apiCall(url, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                }
+            };
+            
+            const mergedOptions = {
+                ...defaultOptions,
+                ...options,
+                headers: {
+                    ...defaultOptions.headers,
+                    ...options.headers
+                }
+            };
+
+            try {
+                const response = await fetch(url, mergedOptions);
+                
+                if (response.status === 401 || response.status === 403) {
+                    logout();
+                    return null;
+                }
+                
+                return response;
+            } catch (error) {
+                console.error('API call error:', error);
+                showAlert('Error de conexión');
+                return null;
+            }
+        }
+
+        async function loadProfile() {
+            const response = await apiCall('/api/auth/profile');
+            if (response && response.ok) {
+                const data = await response.json();
+                // Actualizar información si es necesario
+                currentUser = data.user;
+                localStorage.setItem('user', JSON.stringify(currentUser));
+            }
+        }
+
+        function openProfileModal() {
+            document.getElementById('editUsername').value = currentUser.username;
+            document.getElementById('editEmail').value = currentUser.email;
+            document.getElementById('editPassword').value = '';
+            document.getElementById('profileModal').style.display = 'block';
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const updateData = {};
+            
+            if (formData.get('username')) updateData.username = formData.get('username');
+            if (formData.get('email')) updateData.email = formData.get('email');
+            if (formData.get('password')) updateData.password = formData.get('password');
+            
+            const response = await apiCall(`/api/users/${currentUser.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updateData)
+            });
+            
+            if (response && response.ok) {
+                const data = await response.json();
+                currentUser = data.user;
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                showAlert('Perfil actualizado correctamente', 'success');
+                closeProfileModal();
+                initializeDashboard();
+            } else if (response) {
+                const data = await response.json();
+                showAlert(data.message || 'Error al actualizar perfil');
+            }
+        });
+
+        async function loadUsers() {
+            const response = await apiCall('/api/users/');
+            if (response && response.ok) {
+                const data = await response.json();
+                displayUsers(data.users);
+            }
+        }
+
+        function displayUsers(users) {
+            const content = `
+                <div class="card">
+                    <h3>👥 Lista de Usuarios</h3>
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>Fecha Creación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(user => `
+                                <tr>
+                                    <td>${user.id}</td>
+                                    <td>${user.username}</td>
+                                    <td>${user.email}</td>
+                                    <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                                    <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            document.getElementById('dynamicContent').innerHTML = content;
+        }
+
+        async function loadLogs() {
+            const response = await apiCall('/api/users/admin/logs?limit=50');
+            if (response && response.ok) {
+                const data = await response.json();
+                displayLogs(data.logs);
+            }
+        }
+
+        function displayLogs(logs) {
+            const content = `
+                <div class="card">
+                    <h3>📋 Logs del Sistema (Últimos 50)</h3>
+                    <div class="logs-container">
+                        ${logs.reverse().map(log => `
+                            <div class="log-entry log-level-${log.level}">
+                                <strong>[${new Date(log.timestamp).toLocaleString()}]</strong>
+                                <span style="color: #666;">${log.level}</span> - 
+                                <strong>${log.user}</strong>: ${log.action}
+                                ${log.ip ? `(IP: ${log.ip})` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('dynamicContent').innerHTML = content;
+        }
+
+        async function loadStats() {
+            const response = await apiCall('/api/users/admin/stats');
+            if (response && response.ok) {
+                const data = await response.json();
+                displayStats(data.stats);
+            }
+        }
+
+        function displayStats(stats) {
+            const content = `
+                <div class="card">
+                    <h3>📊 Estadísticas del Sistema</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.totalUsers}</div>
+                            <div>Total Usuarios</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.recentActivity.recentLogins}</div>
+                            <div>Logins Exitosos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.recentActivity.failedLogins}</div>
+                            <div>Logins Fallidos</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${stats.blockedUsers}</div>
+                            <div>Usuarios Bloqueados</div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-top: 2rem;">Usuarios por Rol:</h4>
+                    <div style="margin-top: 1rem;">
+                        ${Object.entries(stats.usersByRole).map(([role, count]) => `
+                            <span class="role-badge role-${role}" style="margin-right: 10px;">
+                                ${role}: ${count}
+                            </span>
+                        `).join('')}
+                    </div>
+
+                    <h4 style="margin-top: 2rem;">Logs por Nivel:</h4>
+                    <div style="margin-top: 1rem;">
+                        ${Object.entries(stats.recentActivity.logsByLevel).map(([level, count]) => `
+                            <div style="margin-bottom: 5px;">
+                                <strong>${level}:</strong> ${count} eventos
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            document.getElementById('dynamicContent').innerHTML = content;
+        }
+
+        async function logout() {
+            await apiCall('/api/auth/logout', { method: 'POST' });
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+
+        // Cerrar modal al hacer clic fuera de él
+        window.onclick = function(event) {
+            const modal = document.getElementById('profileModal');
+            if (event.target === modal) {
+                closeProfileModal();
+            }
+        }
+    </script>
+</body>
+</html>
