@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIRA - Sistema de Información y Recursos Administrativos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6fb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 16px rgba(34,34,59,0.07);
+            width: 400px;
+            max-width: 95vw;
+            padding: 32px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            border: 1px solid #e9ecef;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #22223b;
+            margin-bottom: 6px;
+        }
+
+        .login-header p {
+            color: #4a5568;
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #22223b;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #f7fafc;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            background: #fff;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px 0;
+            background: #4a90e2;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(34,34,59,0.08);
+        }
+
+        .login-btn:hover {
+            background: #2563eb;
+        }
+
+        .login-btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .forgot-password a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-password a:hover {
+            color: #f3722c;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: none;
+        }
+
+        .alert-error {
+            background: #ffe5e5;
+            color: #d90429;
+        }
+
+        .alert-success {
+            background: #e6fbe6;
+            color: #219653;
+        }
+
+        .alert-warning {
+            background: #fff4e5;
+            color: #fb8500;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #4a90e2;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d1d5db;
+            border-top: 2px solid #4a90e2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                width: 100%;
+                padding: 18px 8px;
+                border-radius: 10px;
+            }
+            .login-header h1 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>SIRA</h1>   
+            <p>Sistema de Información y Recursos Administrativos</p>
+        </div>
+        
+        <form class="login-form" id="loginForm">
+            <div id="alertContainer"></div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                Autenticando usuario...
+            </div>
+            
+            <div class="form-group">
+                <label for="identifier">Usuario o Email</label>
+                <input type="text" id="identifier" name="identifier" required autocomplete="username" placeholder="Ingrese su usuario o email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Ingrese su contraseña">
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                Iniciar Sesión
+            </button>
+            
+            <div class="forgot-password">
+                <a href="#" onclick="showForgotPassword()">¿Olvidó su contraseña?</a>
+            </div>
+        </form>
+
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const loading = document.getElementById('loading');
+
+        function showAlert(message, type = 'error') {
+            let icon = 'error';
+            if (type === 'success') icon = 'success';
+            else if (type === 'warning') icon = 'warning';
+            Swal.fire({
+                text: message,
+                icon: icon,
+                confirmButtonColor: icon === 'success' ? '#2563eb' : (icon === 'warning' ? '#fb8500' : '#d90429'),
+                timer: 4000,
+                timerProgressBar: true,
+                showConfirmButton: true
+            });
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                loading.style.display = 'block';
+                loginBtn.disabled = true;
+                loginBtn.textContent = 'Iniciando...';
+            } else {
+                loading.style.display = 'none';
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Iniciar Sesión';
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const identifier = document.getElementById('identifier').value;
+            const password = document.getElementById('password').value;
+            
+            if (!identifier || !password) {
+                showAlert('Por favor, completa todos los campos.');
+                return;
+            }
+            
+            setLoading(true);
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ identifier, password }),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showAlert('¡Login exitoso! Redirigiendo...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    if (response.status === 423) {
+                        showAlert(data.message, 'warning');
+                    } else {
+                        showAlert(data.message || 'Error en el login.');
+                    }
+                }
+            } catch (error) {
+                showAlert('Error de conexión. Intenta de nuevo.');
+                console.error('Login error:', error);
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function showForgotPassword() {
+            const email = prompt('Ingresa tu email para recuperar la contraseña:');
+            if (email) {
+                fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    showAlert(data.message, 'success');
+                    if (data.resetToken) {
+                        console.log('Reset Token (Para desarrollo):', data.resetToken);
+                        console.log('Reset URL:', data.resetUrl);
+                    }
+                })
+                .catch(error => {
+                    showAlert('Error al solicitar recuperación de contraseña.');
+                    console.error('Password reset error:', error);
+                });
+            }
+        }
+
+        // Auto-completar para demo
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F1') {
+                e.preventDefault();
+                document.getElementById('identifier').value = 'admin';
+                document.getElementById('password').value = 'admin123';
+            } else if (e.key === 'F2') {
+                e.preventDefault();
+                document.getElementById('identifier').value = 'nicolas';
+                document.getElementById('password').value = 'nicolas123';
+            }
+        });
+    </script>
+</body>
+</html>
