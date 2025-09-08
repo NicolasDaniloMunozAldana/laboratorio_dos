@@ -102,6 +102,12 @@ body {
     letter-spacing: 1px;
 }
 
+.role-badge.list-display {
+    width: 80%;
+    text-align: center;
+}
+
+
 .role-administrator {
     background: #f3722c;
     color: #fff;
@@ -192,6 +198,7 @@ body {
     padding: 12px;
     text-align: left;
     border-bottom: 1px solid #e9ecef;
+    text-align: center;
 }
 
 .users-table th {
@@ -354,6 +361,10 @@ body {
         margin: 20% auto;
         padding: 1rem;
         width: 95%;
+    }
+
+    .role-badge.list-display{
+        width: 100%;
     }
 }
 
