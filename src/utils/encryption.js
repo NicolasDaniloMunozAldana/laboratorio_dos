@@ -7,7 +7,7 @@ const SECRET_KEY = createHash('sha256')
   .digest();
 const ALGORITHM = 'aes-256-cbc';
 
-function encrypt(text) {
+export function encrypt(text) {
     try {
         const iv = randomBytes(16);
         const cipher = createCipheriv(ALGORITHM, SECRET_KEY, iv);
@@ -20,7 +20,7 @@ function encrypt(text) {
     }
 }
 
-function decrypt(encryptedData) {
+export function decrypt(encryptedData) {
     try {
         const parts = encryptedData.split(':');
         if (parts.length !== 2) {
@@ -39,17 +39,11 @@ function decrypt(encryptedData) {
     }
 }
 
-function generateSecureHash(data) {
+export function generateSecureHash(data) {
     return createHash('sha256').update(data + SECRET_KEY).digest('hex');
 }
 
-function generateRandomToken(length = 32) {
+export function generateRandomToken(length = 32) {
     return randomBytes(length).toString('hex');
 }
 
-export default {
-    encrypt,
-    decrypt,
-    generateSecureHash,
-    generateRandomToken
-};

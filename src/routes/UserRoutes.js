@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getAllUsers, getUserById, updateUserProfile, getSystemLogs, getSystemStats } from '../controllers/userController';
-import { authenticateToken, requireAdmin } from '../middleware/auth';
+import { getAllUsers, getUserById, updateUserProfile, getSystemLogs, getSystemStats } from '../controllers/userController.js';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 
 const router = Router();
 

@@ -1,7 +1,7 @@
-import { getUsers, findUser, updateUser } from '../models/User';
-import { logAction, readLogs } from '../utils/logger';
+import { getUsers, findUser, updateUser } from '../models/User.js';
+import { logAction, readLogs } from '../utils/logger.js';
 
-function getAllUsers(req, res) {
+export function getAllUsers(req, res) {
     try {
         const users = getUsers();
 
@@ -34,7 +34,7 @@ function getAllUsers(req, res) {
     }
 }
 
-function getUserById(req, res) {
+export function getUserById(req, res) {
     try {
         const { id } = req.params;
         const userId = parseInt(id);
@@ -84,7 +84,7 @@ function getUserById(req, res) {
     }
 }
 
-async function updateUserProfile(req, res) {
+export async function updateUserProfile(req, res) {
     try {
         const { id } = req.params;
         const userId = parseInt(id);
@@ -149,7 +149,7 @@ async function updateUserProfile(req, res) {
     }
 }
 
-function getSystemLogs(req, res) {
+export function getSystemLogs(req, res) {
     try {
         const { limit = 50 } = req.query;
         const limitNumber = parseInt(limit);
@@ -178,7 +178,7 @@ function getSystemLogs(req, res) {
     }
 }
 
-function getSystemStats(req, res) {
+export function getSystemStats(req, res) {
     try {
         const users = getUsers();
         const logs = readLogs(1000);
@@ -225,11 +225,3 @@ function getSystemStats(req, res) {
         res.status(500).json({ message: 'Internal server error' });
     }
 }
-
-export default {
-    getAllUsers,
-    getUserById,
-    updateUserProfile,
-    getSystemLogs,
-    getSystemStats
-};

@@ -1,11 +1,13 @@
-import { verify, sign } from 'jsonwebtoken';
-import { logAction } from '../utils/logger';
+import jwt from 'jsonwebtoken';
+const { sign, verify } = jwt;
+
+import { logAction } from '../utils/logger.js';
 import 'dotenv/config';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRES_IN = '24h';
+export const JWT_SECRET = process.env.JWT_SECRET;
+export const JWT_EXPIRES_IN = '24h';
 
-function authenticateToken(req, res, next) {
+export function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -34,7 +36,7 @@ function authenticateToken(req, res, next) {
 }
 
 // Middleware para verificar roles específicos
-function requireRole(roles) {
+export function requireRole(roles) {
     return (req, res, next) => {
         if (!req.user) {
             return res.status(401).json({ message: 'Authentication required' });
@@ -59,11 +61,11 @@ function requireRole(roles) {
     };
 }
 
-function requireAdmin(req, res, next) {
+export function requireAdmin(req, res, next) {
     return requireRole(['administrator'])(req, res, next);
 }
 
-function generateToken(user) {
+export function generateToken(user) {
     const payload = {
         id: user.id,
         username: user.username,
@@ -74,20 +76,10 @@ function generateToken(user) {
     return sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
-function verifyToken(token) {
+export function verifyToken(token) {
     try {
         return verify(token, JWT_SECRET);
     } catch (error) {
         return null;
     }
 }
-
-export default {
-    authenticateToken,
-    requireRole,
-    requireAdmin,
-    generateToken,
-    verifyToken,
-    JWT_SECRET,
-    JWT_EXPIRES_IN
-};

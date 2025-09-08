@@ -1,7 +1,7 @@
-import { findUser, verifyPassword, addLoginAttempt, resetLoginAttempts, isUserBlocked, updateUser } from '../models/User';
-import { generateToken } from '../middleware/auth';
-import { logAction } from '../utils/logger';
-import { generateRandomToken } from '../utils/encryption';
+import { findUser, verifyPassword, addLoginAttempt, resetLoginAttempts, isUserBlocked, updateUser } from '../models/User.js';
+import { generateToken } from '../middleware/auth.js';
+import { logAction } from '../utils/logger.js';
+import { generateRandomToken } from '../utils/encryption.js';
 import { createTransport } from 'nodemailer';
 import 'dotenv/config';
 
@@ -15,7 +15,7 @@ const emailTransporter = createTransport({
 
 const resetTokens = new Map();
 
-async function login(req, res) {
+export async function login(req, res) {
     try {
         const { identifier, password } = req.body;
 
@@ -103,7 +103,7 @@ async function login(req, res) {
     }
 }
 
-async function requestPasswordReset(req, res) {
+export async function requestPasswordReset(req, res) {
     try {
         const { email } = req.body;
 
@@ -170,7 +170,7 @@ async function requestPasswordReset(req, res) {
     }
 }
 
-async function resetPassword(req, res) {
+export async function resetPassword(req, res) {
     try {
         const { token, newPassword } = req.body;
 
@@ -225,7 +225,7 @@ async function resetPassword(req, res) {
     }
 }
 
-function getProfile(req, res) {
+export function getProfile(req, res) {
     try {
         const user = req.user;
 
@@ -252,7 +252,7 @@ function getProfile(req, res) {
     }
 }
 
-function logout(req, res) {
+export function logout(req, res) {
     try {
         const user = req.user;
 
@@ -272,10 +272,3 @@ function logout(req, res) {
     }
 }
 
-export default {
-    login,
-    requestPasswordReset,
-    resetPassword,
-    getProfile,
-    logout
-};

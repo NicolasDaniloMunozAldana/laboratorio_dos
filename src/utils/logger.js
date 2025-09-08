@@ -1,17 +1,23 @@
 import { existsSync, mkdirSync, appendFileSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { encrypt, decrypt } from './encryption';
+import { encrypt, decrypt } from './encryption.js';
+
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const LOGS_DIR = join(__dirname, '../../logs');
 const LOG_FILE = join(LOGS_DIR, 'system.log');
 
-function ensureLogsDirectory() {
+export function ensureLogsDirectory() {
     if (!existsSync(LOGS_DIR)) {
         mkdirSync(LOGS_DIR, { recursive: true });
     }
 }
 
-function logAction(level, user, action, additionalData = {}) {
+export function logAction(level, user, action, additionalData = {}) {
     try {
         ensureLogsDirectory();
         
@@ -37,7 +43,7 @@ function logAction(level, user, action, additionalData = {}) {
     }
 }
 
-function readLogs(limit = 100) {
+export function readLogs(limit = 100) {
     try {
         if (!existsSync(LOG_FILE)) {
             return [];
@@ -63,7 +69,7 @@ function readLogs(limit = 100) {
     }
 }
 
-function cleanOldLogs(daysToKeep = 30) {
+export function cleanOldLogs(daysToKeep = 30) {
     try {
         if (!existsSync(LOG_FILE)) {
             return;
@@ -97,8 +103,3 @@ function cleanOldLogs(daysToKeep = 30) {
     }
 }
 
-export default {
-    logAction,
-    readLogs,
-    cleanOldLogs
-};

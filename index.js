@@ -1,10 +1,16 @@
 import express, { json, urlencoded, static as static_ } from 'express';
 import { join } from 'path';
 import rateLimit from 'express-rate-limit';
-import authRoutes from './src/routes/authRoutes';
-import userRoutes from './src/routes/userRoutes';
-import { initializeUsers } from './src/models/User';
-import { logAction } from './src/utils/logger';
+import authRoutes from './src/routes/authRoutes.js';
+import userRoutes from './src/routes/userRoutes.js';
+import { initializeUsers } from './src/models/User.js';
+import { logAction } from './src/utils/logger.js';
+
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;

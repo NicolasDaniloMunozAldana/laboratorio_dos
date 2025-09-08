@@ -1,7 +1,13 @@
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+
 import { genSalt, hash, compare } from 'bcryptjs';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
-import { encrypt, decrypt } from '../utils/encryption';
+import { encrypt, decrypt } from '../utils/encryption.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const USERS_FILE = join(__dirname, '../../logs/users.json');
 const LOGIN_ATTEMPTS_FILE = join(__dirname, '../../logs/login_attempts.json');
@@ -46,7 +52,7 @@ const defaultUsers = [
     }
 ];
 
-async function initializeUsers() {
+export async function initializeUsers() {
     try {
         let users = [];
         
@@ -77,7 +83,7 @@ async function initializeUsers() {
     }
 }
 
-async function saveUsers(users) {
+export async function saveUsers(users) {
     try {
         const encryptedData = encrypt(JSON.stringify(users, null, 2));
         writeFileSync(USERS_FILE, encryptedData);
@@ -87,7 +93,7 @@ async function saveUsers(users) {
     }
 }
 
-function getUsers() {
+export function getUsers() {
     try {
         if (!existsSync(USERS_FILE)) {
             return [];
@@ -101,18 +107,18 @@ function getUsers() {
     }
 }
 
-function findUser(identifier) {
+export function findUser(identifier) {
     const users = getUsers();
     return users.find(user => 
         user.username === identifier || user.email === identifier
     );
 }
 
-async function verifyPassword(password, hashedPassword) {
+export async function verifyPassword(password, hashedPassword) {
     return await compare(password, hashedPassword);
 }
 
-function getLoginAttempts() {
+export function getLoginAttempts() {
     try {
         if (!existsSync(LOGIN_ATTEMPTS_FILE)) {
             return {};
@@ -126,7 +132,7 @@ function getLoginAttempts() {
     }
 }
 
-function saveLoginAttempts(attempts) {
+export function saveLoginAttempts(attempts) {
     try {
         const encryptedData = encrypt(JSON.stringify(attempts, null, 2));
         writeFileSync(LOGIN_ATTEMPTS_FILE, encryptedData);
@@ -136,7 +142,7 @@ function saveLoginAttempts(attempts) {
     }
 }
 
-function addLoginAttempt(identifier) {
+export function addLoginAttempt(identifier) {
     const attempts = getLoginAttempts();
     const now = new Date();
     
@@ -160,7 +166,7 @@ function addLoginAttempt(identifier) {
     return attempts[identifier];
 }
 
-function resetLoginAttempts(identifier) {
+export function resetLoginAttempts(identifier) {
     const attempts = getLoginAttempts();
     if (attempts[identifier]) {
         delete attempts[identifier];
@@ -168,7 +174,7 @@ function resetLoginAttempts(identifier) {
     }
 }
 
-function isUserBlocked(identifier) {
+export function isUserBlocked(identifier) {
     const attempts = getLoginAttempts();
     if (!attempts[identifier] || !attempts[identifier].blockedUntil) {
         return false;
@@ -189,7 +195,7 @@ function isUserBlocked(identifier) {
     }
 }
 
-async function updateUser(userId, updateData) {
+export async function updateUser(userId, updateData) {
     try {
         const users = getUsers();
         const userIndex = users.findIndex(user => user.id === userId);
@@ -213,14 +219,4 @@ async function updateUser(userId, updateData) {
     }
 }
 
-export default {
-    initializeUsers,
-    getUsers,
-    findUser,
-    verifyPassword,
-    addLoginAttempt,
-    resetLoginAttempts,
-    isUserBlocked,
-    updateUser,
-    saveUsers
-};
+
