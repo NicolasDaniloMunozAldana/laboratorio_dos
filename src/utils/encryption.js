@@ -1,7 +1,9 @@
 import { createHash, randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+import 'dotenv/config';
+
 
 const SECRET_KEY = createHash('sha256')
-  .update(String("megustantusojos")) 
+  .update(String(process.env.SECRET_KEY)) 
   .digest();
 const ALGORITHM = 'aes-256-cbc';
 
