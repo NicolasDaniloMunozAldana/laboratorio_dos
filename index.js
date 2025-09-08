@@ -40,6 +40,14 @@ app.get('/dashboard', (req, res) => {
     res.sendFile(join(__dirname, 'public', 'dashboard.html'));
 });
 
+app.get('/forgot-password', (req, res) => {
+    res.sendFile(join(__dirname, 'public', 'forgot-password.html'));
+});
+
+app.get('/reset-password', (req, res) => {
+    res.sendFile(join(__dirname, 'public', 'reset-password.html'));
+});
+
 app.use((err, req, res, next) => {
     logAction('ERROR', 'system', `Error: ${err.message}`);
     res.status(500).json({ message: 'Internal server error' });

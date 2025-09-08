@@ -121,28 +121,7 @@
         });
 
         function showForgotPassword() {
-            const email = prompt('Ingresa tu email para recuperar la contraseña:');
-            if (email) {
-                fetch('/api/auth/forgot-password', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    showAlert(data.message, 'success');
-                    if (data.resetToken) {
-                        console.log('Reset Token (Para desarrollo):', data.resetToken);
-                        console.log('Reset URL:', data.resetUrl);
-                    }
-                })
-                .catch(error => {
-                    showAlert('Error al solicitar recuperación de contraseña.');
-                    console.error('Password reset error:', error);
-                });
-            }
+            window.location.href = '/forgot-password';
         }
 
         // Auto-completar para demo
