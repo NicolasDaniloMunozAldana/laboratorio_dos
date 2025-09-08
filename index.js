@@ -5,6 +5,7 @@ import authRoutes from './src/routes/authRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 import { initializeUsers } from './src/models/User.js';
 import { logAction } from './src/utils/logger.js';
+import { specs, swaggerUi } from './src/config/swagger.js';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -28,6 +29,28 @@ const limiter = rateLimit({
 app.use(limiter);
 
 initializeUsers();
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+    customCss: `
+        .topbar-wrapper img { content: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjNGE5MGUyIi8+Cjx0ZXh0IHg9IjUiIHk9IjIwIiBmaWxsPSJ3aGl0ZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+U0lSQTwvdGV4dD4KPHN2Zz4K'); width: 80px; }
+        .topbar { background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); }
+        .swagger-ui .topbar .download-url-wrapper { display: none; }
+    `,
+    customSiteTitle: 'SIRA API Documentation',
+    swaggerOptions: {
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        docExpansion: 'list',
+        filter: true,
+        showRequestHeaders: true,
+        tryItOutEnabled: true
+    }
+}));
+
+app.get('/api-docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(specs);
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
