@@ -1,18 +1,18 @@
-const express = require('express');
-const path = require('path');
-const rateLimit = require('express-rate-limit');
-const authRoutes = require('./src/routes/authRoutes');
-const userRoutes = require('./src/routes/userRoutes');
-const { initializeUsers } = require('./src/models/User');
-const { logAction } = require('./src/utils/logger');
+import express, { json, urlencoded, static as static_ } from 'express';
+import { join } from 'path';
+import rateLimit from 'express-rate-limit';
+import authRoutes from './src/routes/authRoutes';
+import userRoutes from './src/routes/userRoutes';
+import { initializeUsers } from './src/models/User';
+import { logAction } from './src/utils/logger';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(json());
+app.use(urlencoded({ extended: true }));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(static_(join(__dirname, 'public')));
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -27,11 +27,11 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.sendFile(join(__dirname, 'public', 'login.html'));
 });
 
 app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+    res.sendFile(join(__dirname, 'public', 'dashboard.html'));
 });
 
 app.use((err, req, res, next) => {
@@ -48,4 +48,4 @@ app.listen(PORT, () => {
     logAction('INFO', 'system', `Server started on port ${PORT}`);
 });
 
-module.exports = app;
+export default app;

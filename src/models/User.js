@@ -1,10 +1,10 @@
-const bcrypt = require('bcryptjs');
-const fs = require('fs');
-const path = require('path');
-const { encrypt, decrypt } = require('../utils/encryption');
+import { genSalt, hash, compare } from 'bcryptjs';
+import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
+import { encrypt, decrypt } from '../utils/encryption';
 
-const USERS_FILE = path.join(__dirname, '../../logs/users.json');
-const LOGIN_ATTEMPTS_FILE = path.join(__dirname, '../../logs/login_attempts.json');
+const USERS_FILE = join(__dirname, '../../logs/users.json');
+const LOGIN_ATTEMPTS_FILE = join(__dirname, '../../logs/login_attempts.json');
 
 // Usuarios predefinidos con roles
 const defaultUsers = [
@@ -50,23 +50,23 @@ async function initializeUsers() {
     try {
         let users = [];
         
-        if (fs.existsSync(USERS_FILE)) {
-            const encryptedData = fs.readFileSync(USERS_FILE, 'utf8');
+        if (existsSync(USERS_FILE)) {
+            const encryptedData = readFileSync(USERS_FILE, 'utf8');
             const decryptedData = decrypt(encryptedData);
             users = JSON.parse(decryptedData);
         } else {
             for (let user of defaultUsers) {
-                const salt = await bcrypt.genSalt(10);
-                user.password = await bcrypt.hash(user.password, salt);
+                const salt = await genSalt(10);
+                user.password = await hash(user.password, salt);
             }
             users = defaultUsers;
             await saveUsers(users);
         }
 
-        if (!fs.existsSync(LOGIN_ATTEMPTS_FILE)) {
+        if (!existsSync(LOGIN_ATTEMPTS_FILE)) {
             const initialAttempts = {};
             const encryptedAttempts = encrypt(JSON.stringify(initialAttempts));
-            fs.writeFileSync(LOGIN_ATTEMPTS_FILE, encryptedAttempts);
+            writeFileSync(LOGIN_ATTEMPTS_FILE, encryptedAttempts);
         }
 
         console.log('Users initialized successfully');
@@ -80,7 +80,7 @@ async function initializeUsers() {
 async function saveUsers(users) {
     try {
         const encryptedData = encrypt(JSON.stringify(users, null, 2));
-        fs.writeFileSync(USERS_FILE, encryptedData);
+        writeFileSync(USERS_FILE, encryptedData);
     } catch (error) {
         console.error('Error saving users:', error);
         throw error;
@@ -89,10 +89,10 @@ async function saveUsers(users) {
 
 function getUsers() {
     try {
-        if (!fs.existsSync(USERS_FILE)) {
+        if (!existsSync(USERS_FILE)) {
             return [];
         }
-        const encryptedData = fs.readFileSync(USERS_FILE, 'utf8');
+        const encryptedData = readFileSync(USERS_FILE, 'utf8');
         const decryptedData = decrypt(encryptedData);
         return JSON.parse(decryptedData);
     } catch (error) {
@@ -109,15 +109,15 @@ function findUser(identifier) {
 }
 
 async function verifyPassword(password, hashedPassword) {
-    return await bcrypt.compare(password, hashedPassword);
+    return await compare(password, hashedPassword);
 }
 
 function getLoginAttempts() {
     try {
-        if (!fs.existsSync(LOGIN_ATTEMPTS_FILE)) {
+        if (!existsSync(LOGIN_ATTEMPTS_FILE)) {
             return {};
         }
-        const encryptedData = fs.readFileSync(LOGIN_ATTEMPTS_FILE, 'utf8');
+        const encryptedData = readFileSync(LOGIN_ATTEMPTS_FILE, 'utf8');
         const decryptedData = decrypt(encryptedData);
         return JSON.parse(decryptedData);
     } catch (error) {
@@ -129,7 +129,7 @@ function getLoginAttempts() {
 function saveLoginAttempts(attempts) {
     try {
         const encryptedData = encrypt(JSON.stringify(attempts, null, 2));
-        fs.writeFileSync(LOGIN_ATTEMPTS_FILE, encryptedData);
+        writeFileSync(LOGIN_ATTEMPTS_FILE, encryptedData);
     } catch (error) {
         console.error('Error saving login attempts:', error);
         throw error;
@@ -199,8 +199,8 @@ async function updateUser(userId, updateData) {
         }
         
         if (updateData.password) {
-            const salt = await bcrypt.genSalt(10);
-            updateData.password = await bcrypt.hash(updateData.password, salt);
+            const salt = await genSalt(10);
+            updateData.password = await hash(updateData.password, salt);
         }
         
         users[userIndex] = { ...users[userIndex], ...updateData };
@@ -213,7 +213,7 @@ async function updateUser(userId, updateData) {
     }
 }
 
-module.exports = {
+export default {
     initializeUsers,
     getUsers,
     findUser,
