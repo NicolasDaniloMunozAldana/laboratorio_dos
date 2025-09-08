@@ -1,15 +1,9 @@
-const express = require('express');
-const rateLimit = require('express-rate-limit');
-const { 
-    login, 
-    requestPasswordReset, 
-    resetPassword, 
-    getProfile, 
-    logout 
-} = require('../controllers/authController');
-const { authenticateToken } = require('../middleware/auth');
+import { Router } from 'express';
+import rateLimit from 'express-rate-limit';
+import { login, requestPasswordReset, resetPassword, getProfile, logout } from '../controllers/authController';
+import { authenticateToken } from '../middleware/auth';
 
-const router = express.Router();
+const router = Router();
 
 // Rate limiting específico para login
 const loginLimiter = rateLimit({
@@ -38,4 +32,4 @@ router.post('/reset-password', resetPassword);
 router.get('/profile', authenticateToken, getProfile);
 router.post('/logout', authenticateToken, logout);
 
-module.exports = router;
+export default router;

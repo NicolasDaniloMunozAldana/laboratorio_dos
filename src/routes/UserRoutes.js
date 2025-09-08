@@ -1,14 +1,8 @@
-const express = require('express');
-const { 
-    getAllUsers, 
-    getUserById, 
-    updateUserProfile, 
-    getSystemLogs, 
-    getSystemStats 
-} = require('../controllers/userController');
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
+import { Router } from 'express';
+import { getAllUsers, getUserById, updateUserProfile, getSystemLogs, getSystemStats } from '../controllers/userController';
+import { authenticateToken, requireAdmin } from '../middleware/auth';
 
-const router = express.Router();
+const router = Router();
 
 // Todas las rutas requieren autenticación
 router.use(authenticateToken);
@@ -22,4 +16,4 @@ router.get('/', requireAdmin, getAllUsers);
 router.get('/admin/logs', requireAdmin, getSystemLogs);
 router.get('/admin/stats', requireAdmin, getSystemStats);
 
-module.exports = router;
+export default router;
