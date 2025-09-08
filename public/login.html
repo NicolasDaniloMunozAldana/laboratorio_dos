@@ -39,6 +39,10 @@
             <div class="forgot-password">
                 <a href="#" onclick="showForgotPassword()">¿Olvidó su contraseña?</a>
             </div>
+            
+            <div class="register-link">
+                <p>¿No tienes cuenta? <a href="/register" onclick="goToRegister()">Regístrate aquí</a></p>
+            </div>
         </form>
 
     </div>
@@ -122,6 +126,10 @@
 
         function showForgotPassword() {
             window.location.href = '/forgot-password';
+        }
+
+        function goToRegister() {
+            window.location.href = '/register';
         }
 
         // Auto-completar para demo

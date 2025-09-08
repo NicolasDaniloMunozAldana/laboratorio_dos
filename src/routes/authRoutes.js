@@ -34,7 +34,7 @@
 
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
-import { login, requestPasswordReset, resetPassword, getProfile, logout, requestResetCode, verifyResetCode, resetPasswordWithCode } from '../controllers/authController.js';
+import { login, register, requestPasswordReset, resetPassword, getProfile, logout, requestResetCode, verifyResetCode, resetPasswordWithCode } from '../controllers/authController.js';
 import { authenticateToken } from '../middleware/auth.js';
 
 const router = Router();
@@ -44,6 +44,15 @@ const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
     max: 10, // máximo 10 intentos de login por IP cada 15 minutos
     message: 'Too many login attempts, please try again later.',
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Rate limiting para registro
+const registerLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hora
+    max: 5, // máximo 5 registros por IP cada hora
+    message: 'Too many registration attempts, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
 });
@@ -139,6 +148,97 @@ const codeVerificationLimiter = rateLimit({
  *               $ref: '#/components/schemas/Error'
  */
 router.post('/login', loginLimiter, login);
+
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Registrar un nuevo usuario
+ *     description: |
+ *       Crea una nueva cuenta de usuario en el sistema.
+ *       
+ *       **Validaciones:**
+ *       - Username único
+ *       - Email único y válido
+ *       - Contraseña mínimo 6 caracteres con al menos una letra y un número
+ *       - Rate limiting: máximo 5 registros por IP cada hora
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [username, email, password]
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 minLength: 1
+ *                 example: "juanperez"
+ *                 description: Nombre de usuario único
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "juan@correo.com"
+ *                 description: Email único y válido
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 6
+ *                 example: "password123"
+ *                 description: Contraseña con al menos una letra y un número
+ *     responses:
+ *       201:
+ *         description: Usuario registrado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Usuario registrado exitosamente"
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 3
+ *                     username:
+ *                       type: string
+ *                       example: "juanperez"
+ *                     email:
+ *                       type: string
+ *                       example: "juan@correo.com"
+ *                     role:
+ *                       type: string
+ *                       example: "user"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2025-09-08T10:30:00.000Z"
+ *       400:
+ *         description: Error de validación
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   examples:
+ *                     - "Nombre de usuario, email y contraseña son requeridos"
+ *                     - "El formato del email no es válido"
+ *                     - "La contraseña debe tener al menos 6 caracteres"
+ *                     - "La contraseña debe contener al menos una letra y un número"
+ *                     - "El nombre de usuario ya está en uso"
+ *                     - "El email ya está registrado"
+ *       429:
+ *         $ref: '#/components/responses/RateLimitError'
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.post('/register', registerLimiter, register);
 
 /**
  * @swagger

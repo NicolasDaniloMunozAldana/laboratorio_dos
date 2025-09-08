@@ -71,6 +71,10 @@ app.get('/reset-password', (req, res) => {
     res.sendFile(join(__dirname, 'public', 'reset-password.html'));
 });
 
+app.get('/register', (req, res) => {
+    res.sendFile(join(__dirname, 'public', 'register.html'));
+});
+
 app.use((err, req, res, next) => {
     logAction('ERROR', 'system', `Error: ${err.message}`);
     res.status(500).json({ message: 'Internal server error' });
