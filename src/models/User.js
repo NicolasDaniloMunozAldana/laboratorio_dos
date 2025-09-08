@@ -12,6 +12,27 @@ const __dirname = dirname(__filename);
 const USERS_FILE = join(__dirname, '../../logs/users.json');
 const LOGIN_ATTEMPTS_FILE = join(__dirname, '../../logs/login_attempts.json');
 
+const defaultUsers = [
+    {
+        id: 1,
+        username: 'admin',
+        email: 'admin@sistema.com',
+        password: 'admin123',
+        role: 'administrator',
+        isBlocked: false,
+        createdAt: new Date().toISOString()
+    },
+    {
+        id: 2,
+        username: 'nicolas',
+        email: 'nicolas@sistema.com',
+        password: 'nicolas123',
+        role: 'user',
+        isBlocked: false,
+        createdAt: new Date().toISOString()
+    }
+];
+
 export async function initializeUsers() {
     try {
         let users = [];

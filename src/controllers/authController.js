@@ -1,4 +1,5 @@
-import { findUser, verifyPassword, addLoginAttempt, resetLoginAttempts, isUserBlocked, updateUser } from '../models/User.js';
+import { findUser, verifyPassword, addLoginAttempt, resetLoginAttempts, isUserBlocked, updateUser, getUsers, saveUsers } from '../models/User.js';
+import { genSalt, hash } from 'bcryptjs';
 import { generateToken } from '../middleware/auth.js';
 import { logAction } from '../utils/logger.js';
 import { generateRandomToken } from '../utils/encryption.js';
@@ -493,6 +494,110 @@ export async function resetPasswordWithCode(req, res) {
 
     } catch (error) {
         logAction('ERROR', 'system', `Password reset with code error: ${error.message}`, {
+            ip: req.ip,
+            userAgent: req.get('User-Agent')
+        });
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+}
+
+export async function register(req, res) {
+    try {
+        const { username, email, password } = req.body;
+
+        // Validaciones básicas
+        if (!username || !email || !password) {
+            return res.status(400).json({
+                message: 'Nombre de usuario, email y contraseña son requeridos'
+            });
+        }
+
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                message: 'El formato del email no es válido'
+            });
+        }
+
+        // Validar longitud de contraseña
+        if (password.length < 6) {
+            return res.status(400).json({
+                message: 'La contraseña debe tener al menos 6 caracteres'
+            });
+        }
+
+        // Validar que la contraseña tenga al menos una letra y un número
+        if (!/[a-zA-Z]/.test(password) || !/\d/.test(password)) {
+            return res.status(400).json({
+                message: 'La contraseña debe contener al menos una letra y un número'
+            });
+        }
+
+        const users = getUsers();
+
+        // Verificar si el username ya existe
+        const existingUserByUsername = users.find(user => user.username === username);
+        if (existingUserByUsername) {
+            return res.status(400).json({
+                message: 'El nombre de usuario ya está en uso'
+            });
+        }
+
+        // Verificar si el email ya existe
+        const existingUserByEmail = users.find(user => user.email === email);
+        if (existingUserByEmail) {
+            return res.status(400).json({
+                message: 'El email ya está registrado'
+            });
+        }
+
+        // Generar nuevo ID
+        const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+
+        // Hashear la contraseña
+        const salt = await genSalt(10);
+        const hashedPassword = await hash(password, salt);
+
+        // Crear nuevo usuario
+        const newUser = {
+            id: newId,
+            username: username,
+            email: email,
+            password: hashedPassword,
+            role: 'user', // Por defecto, nuevo usuario tiene rol 'user'
+            isBlocked: false,
+            createdAt: new Date().toISOString()
+        };
+
+        // Agregar usuario a la lista
+        users.push(newUser);
+
+        // Guardar usuarios (encriptado)
+        await saveUsers(users);
+
+        // Log del registro exitoso
+        logAction('INFO', username, 'New user registered successfully', {
+            ip: req.ip,
+            userAgent: req.get('User-Agent'),
+            email: email,
+            userId: newId
+        });
+
+        // Respuesta exitosa (sin incluir contraseña)
+        res.status(201).json({
+            message: 'Usuario registrado exitosamente',
+            user: {
+                id: newUser.id,
+                username: newUser.username,
+                email: newUser.email,
+                role: newUser.role,
+                createdAt: newUser.createdAt
+            }
+        });
+
+    } catch (error) {
+        logAction('ERROR', 'system', `Registration error: ${error.message}`, {
             ip: req.ip,
             userAgent: req.get('User-Agent')
         });
